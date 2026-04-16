@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-book-bookmark logo-icon"></i>
+                <span class="logo-text">LibAdmin</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                    <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('books.index') }}" class="nav-link {% if 'books' in request.endpoint %}active{% endif %}">
+                    <i class="fa-solid fa-book"></i> <span>Books</span>
+                </a>
+                {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('members.index') }}" class="nav-link {% if 'members' in request.endpoint %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i> <span>Members</span>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('issues.index') }}" class="nav-link {% if 'issues' in request.endpoint %}active{% endif %}">
+                    <i class="fa-solid fa-receipt"></i> <span>Issuance</span>
+                </a>
+                <a href="{{ url_for('fines.index') }}" class="nav-link {% if 'fines' in request.endpoint %}active{% endif %}">
+                    <i class="fa-solid fa-indian-rupee-sign"></i> <span>Fines</span>
+                </a>
+                {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin.logs') }}" class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}">
+                    <i class="fa-solid fa-list-check"></i> <span>System Logs</span>
+                </a>
+                {% endif %}
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">{{ session.get('username', 'U')[0].upper() }}</div>
+                    <div class="username-wrap">
+                        <span class="username">{{ session.get('username', 'Guest') }}</span>
+                        <span class="role">{{ 'Library Admin' if session.get('role') == 'admin' else 'Member' }}</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="page-title">
+                    {% block title %}Dashboard{% endblock %}
+                </div>
+                <div class="top-nav-actions">
+                    <div class="date-display" id="currentDate"></div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                    {% for message in messages %}
+                      <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay"></div>
+    {% block modals %}{% endblock %}
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

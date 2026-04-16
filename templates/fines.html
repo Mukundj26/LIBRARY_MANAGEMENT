@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Finances & Fines{% endblock %}
+
+{% block content %}
+<div class="page-header-actions">
+    <div class="header-info">
+        <h2>Penalty Tracking</h2>
+        <p>Manage overdue collection and payment records.</p>
+    </div>
+</div>
+
+<div class="table-container shadow">
+    <table>
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Book</th>
+                <th>Amount</th>
+                <th>Assessed Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fine in fines %}
+            <tr>
+                <td><strong>{{ fine.member_name }}</strong></td>
+                <td>{{ fine.book_title }}</td>
+                <td><span class="text-bold">₹{{ fine.amount }}</span></td>
+                <td>{{ fine.date_assessed }}</td>
+                <td>
+                    <span class="badge {{ 'badge-green' if fine.paid_status == 'paid' else 'badge-red' }}">
+                        {{ fine.paid_status|upper }}
+                    </span>
+                </td>
+                <td>
+                    {% if fine.paid_status == 'unpaid' %}
+                    <form action="{{ url_for('fines.pay', id=fine.id) }}" method="POST">
+                        <button type="submit" class="btn-primary btn-sm">Mark Paid</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">Settled</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">Clear records! No fines found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

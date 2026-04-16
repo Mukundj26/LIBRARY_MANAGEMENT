@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Overview{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-book"></i></div>
+        <div class="stat-details">
+            <span class="stat-label">Total Books</span>
+            <span class="stat-value">{{ stats.total_books }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-check-circle"></i></div>
+        <div class="stat-details">
+            <span class="stat-label">Available</span>
+            <span class="stat-value">{{ stats.available_books }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-details">
+            <span class="stat-label">Members</span>
+            <span class="stat-value">{{ stats.total_members }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fa-solid fa-receipt"></i></div>
+        <div class="stat-details">
+            <span class="stat-label">Issued</span>
+            <span class="stat-value">{{ stats.issued_books }}</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="stat-details">
+            <span class="stat-label">Unpaid Fines</span>
+            <span class="stat-value">₹{{ stats.total_fines }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-section">
+    <div class="section-header">
+        <h2>Recent Issuances</h2>
+        <a href="{{ url_for('issues.index') }}" class="btn-text">View all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="table-container shadow">
+        <table>
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Member</th>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in recent_issues %}
+                <tr>
+                    <td><strong>{{ issue.title }}</strong></td>
+                    <td>{{ issue.name }}</td>
+                    <td>{{ issue.issue_date }}</td>
+                    <td>{{ issue.due_date }}</td>
+                    <td><span class="badge badge-purple">{{ issue.status|capitalize }}</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No recent activity</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
