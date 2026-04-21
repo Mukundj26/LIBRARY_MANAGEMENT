@@ -1,68 +1,61 @@
 # 📚 Premium Library Management System
 
-A robust, multi-role library management platform built with **Python/Flask** and **SQLite**. This system is designed for both administrators and library members, featuring automated transaction tracking, fine calculations, and a high-performance database audit tail.
+A robust, multi-role library management platform built with **Python/Flask** and **SQLite**. This system is designed for both administrators and library members, featuring automated transaction tracking, fine calculations, and a high-performance database audit trail.
 
 ---
 
 ## 🚀 Key Features
 
-### 👤 Multi-Role Authentication
-- **Library Admins:** Full control over books, members, and system logs.
-- **Member Access:** Self-service registration and a personal dashboard to track borrowed books and fines.
+### 👤 Multi-Role Authentication & Access Control
+- **Administrative Control:** Full CRUD operations for books, member management, and oversight of system-wide audit logs.
+- **Member Portals:** Self-service registration allowing users to track their own borrowed history and pending fines.
+- **Secure Persistence:** Powered by SQLite with secure password hashing via `werkzeug.security`.
 
-### 📖 Advanced Book Management
-- **Catalog Tracking:** Detailed storage of titles, authors, categories, and ISBNs.
-- **Dynamic Availability:** Real-time quantity updates when books are issued or returned.
-- **Metadata Support:** Store internal "Notes / Remarks" for any book.
+### 📖 Advanced Book & Inventory Management
+- **Smart Cataloging:** Store extensive metadata including Titles, Authors, ISBNs, and internal "Notes/Remarks".
+- **Dynamic Inventory Tracking:** Automated "Available Quantity" management that shifts in real-time as books are issued and returned.
+- **Diverse Categorization:** Pre-configured with categories such as **Fiction**, **Science**, **Technology**, **History**, **Motivation**, and **Engineering**.
+- **Real-time Search:** AJAX-powered search bar for instant title/author/ISBN lookups without page reloads.
 
-### 🤝 Member & Transaction Suite
-- **Registration:** Instant account creation for new members.
-- **Issuance Logic:** Easily "Issue" books to members with automated due-date calculation.
-- **Return & Fine System:** Automatic fine generation (₹2/day) for overdue books upon return.
+### 🤝 Transaction Logic & Due Date Management
+- **Issuance Guardrails:** Enforces a maximum limit of **3 books** per member and checks for stock availability before processing.
+- **Automated Due Dates:** Configured for a standard **14-day loan period** with automatic calculation upon issuance.
+- **Return Processing:** Simple one-click return workflow that restores stock levels instantly.
 
-### 🛡️ System Audit & Logging
-- **Action Tracking:** Every database change (Add, Edit, Issue) records **who** did it and **when**.
-- **System Logs Page:** A dedicated Admin-only interface to view the live activity feed and browse raw table data.
+### 💸 Automated Fine System
+- **Overdue Detection:** The system automatically identifies overdue returns.
+- **Fine Generation:** Calculates fines at a rate of **₹2 per day** for overdue items.
+- **Financial Tracking:** Dedicated fines management section to track payment status for all member accounts.
+
+### 🛡️ Comprehensive Audit Trail
+- **System Activity Logging:** Every database mutation (Add, Edit, Issue, Return) is recorded with a timestamp and the initiating user's ID.
+- **Admin Audit Interface:** A specialized view for administrators to monitor the live feed of system activities and browse raw data tables for troubleshooting.
 
 ---
 
 ## 🏗️ Architecture & Tech Stack
 
-- **Backend:** Flask (Python) with a modular blueprint architecture.
-- **Database:** SQLite (`library.db`) for a portable, single-file storage solution.
-- **Frontend:** Vanilla CSS (Modern UI) with rich aesthetics, glassmorphism elements, and responsive tables.
-- **Security:** Secure password hashing using `werkzeug.security`.
-
-### Database Schema
-The system uses 8 primary tables:
-1. `admins`: Administrative credentials.
-2. `categories`: Book classifications.
-3. `books`: Detailed catalog with inventory tracking.
-4. `members`: User profiles with login capability.
-5. `issues`: The transaction bridge between books and members.
-6. `fines`: Financial tracking for overdue returns.
-7. `reservations`: Book hold management.
-8. `system_logs`: The central audit trail for all system events.
+- **Backend:** Flask (Python 3) using a clean, Blueprint-based modular architecture.
+- **Database:** SQLite (`library.db`) — a lightweight yet powerful single-file database solution.
+- **Frontend:** Premium UI design utilizing **Vanilla CSS** for maximum speed and flexibility. Features include:
+    - Glassmorphism UI elements
+    - Responsive tables and forms
+    - Animated transitions and interactive hovers
+    - Google Fonts (Inter/Roboto) for modern typography
+- **Dependencies:** Managed via `pip` (see `requirements.txt`).
 
 ---
 
-## 🔄 Common Workflows
+## 🔄 Core Workflows
 
-### 1. Adding a New Book
-- Log in as **Admin**.
-- Navigate to **Books** -> **Add New Book**.
-- Fill in details and add any internal "Notes".
-- The system automatically logs your username as the creator.
+### 1. Catalog Management
+Admins can navigate to the **Books** section to add new titles. The system supports bulk entry and allows for detailed notes. The new categories like **Motivation** and **Engineering** are fully integrated.
 
-### 2. Registering and Issuing
-- A new user uses the **Register** link to create a Member account.
-- The Admin navigates to **Issuance** -> **Process New Issue**.
-- Select the book and member. The system calculates the due date and records the Admin who processed it.
+### 2. The Issue-Return Lifecycle
+Registration creates a member profile. Admins then "Issue" books, which automatically reduces the "Available Quantity". Upon "Return", the system calculates if the difference between the return date and due date is positive, triggering a Fine record if necessary.
 
-### 3. Returning & Fines
-- Go to **Issuance** -> **Returned**.
-- Click the "Return" icon.
-- If overdue, the system generates a **Fine** record and displays it in the **Fines** section.
+### 3. Monitoring System Health
+Admins use the **Dashboard** for a bird's-eye view of library health (total books vs. available, total members, active issues, and total unpaid fines) and the **Logs** section for deeper security oversight.
 
 ---
 
@@ -74,7 +67,7 @@ The system uses 8 primary tables:
    pip install -r requirements.txt
    ```
 3. **Initialize the Database:**
-   The `library.db` is included, but to reset it, run:
+   The `library.db` is included, but to reset it to a clean state, run:
    ```bash
    python -c "from app import create_app; from db import init_db; init_db(create_app())"
    ```
@@ -82,21 +75,21 @@ The system uses 8 primary tables:
    ```bash
    python app.py
    ```
-5. **Access the site:** Open `http://127.0.0.1:5000` in your browser.
+5. **Access the platform:** Open `http://127.0.0.1:5000` in your browser.
 
 ---
 
 ## 📂 Project Structure
 ```text
-├── app.py              # Entry point & blueprint registration
-├── config.py           # System rules & DB paths
-├── db.py               # Database utility layer (SQLite)
-├── routes/             # Backend logic (Auth, Books, Members, etc.)
-├── static/             # CSS styling & Frontend assets
-├── templates/          # HTML views
+├── app.py              # Application factory and blueprint registration
+├── config.py           # System settings, limits, and database paths
+├── db.py               # Database engine, query utilities, and loggers
+├── routes/             # Feature-specific logic (Auth, Books, Fines, etc.)
+├── static/             # CSS styling, Modern UI assets, and JavaScript
+├── templates/          # Jinja2 HTML templates
 └── database/
-    ├── schema.sql      # SQL blueprint
-    └── library.db      # The single-file database
+    ├── schema.sql      # Database blueprint for fresh initialization
+    └── library.db      # The production-ready SQLite database
 ```
 
-*Developed as a high-performance solution for modern library management.*
+*Developed with focus on performance, security, and a premium user experience.*
