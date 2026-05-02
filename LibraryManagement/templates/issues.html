@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Issue & Return{% endblock %}
+
+{% block content %}
+<div class="page-header-actions">
+    <div class="header-info">
+        <p>Currently <strong>{{ issues|length }}</strong> books are out on loan.</p>
+    </div>
+    <button class="btn-primary" onclick="openModal('issueBookModal')">
+        <i class="fa-solid fa-plus-circle"></i> Issue New Book
+    </button>
+</div>
+
+<div class="table-container shadow">
+    <table>
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Book Title</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Processed By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in issues %}
+            <tr>
+                <td><strong>{{ issue.member_name }}</strong></td>
+                <td>{{ issue.title }}</td>
+                <td>{{ issue.issue_date }}</td>
+                <td>
+                    <span class="due-date">{{ issue.due_date }}</span>
+                </td>
+                <td><small>{{ issue.processed_by or 'System' }}</small></td>
+                <td>
+                    <form action="{{ url_for('issues.return_book', id=issue.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-outline btn-sm">
+                            <i class="fa-solid fa-rotate-left"></i> Return
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No books currently issued.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="issueBookModal" class="modal">
+    <div class="modal-header">
+        <h3>Issue a Book</h3>
+        <button class="close-btn" onclick="closeModal('issueBookModal')">&times;</button>
+    </div>
+    <form action="{{ url_for('issues.add') }}" method="POST" class="modal-body p-20">
+        <div class="form-group">
+            <label>Select Member</label>
+            <div class="search-select-wrap">
+                <input type="text" id="memberSearchIssue" placeholder="Type to search member..." onkeyup="filterMembers()">
+                <select name="member_id" id="memberSelect" required size="5" class="search-select">
+                    <!-- Loaded via JS -->
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Select Book</label>
+            <div class="search-select-wrap">
+                <input type="text" id="bookSearchIssue" placeholder="Type to search book..." onkeyup="filterBooks()">
+                <select name="book_id" id="bookSelect" required size="5" class="search-select">
+                    <!-- Loaded via JS -->
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-text" onclick="closeModal('issueBookModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm Issue</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function filterMembers() {
+        const q = document.getElementById('memberSearchIssue').value;
+        if(q.length < 2) return;
+        fetch(`/api/members/search?q=${q}`)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('memberSelect');
+                select.innerHTML = '';
+                data.forEach(m => {
+                    select.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
+                });
+            });
+    }
+
+    function filterBooks() {
+        const q = document.getElementById('bookSearchIssue').value;
+        if(q.length < 2) return;
+        fetch(`/api/books/search?q=${q}`)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('bookSelect');
+                select.innerHTML = '';
+                data.forEach(b => {
+                    if(b.available_qty > 0) {
+                        select.innerHTML += `<option value="${b.id}">${b.title} - ${b.author} [${b.available_qty} left]</option>`;
+                    }
+                });
+            });
+    }
+</script>
+{% endblock %}
