@@ -128,6 +128,11 @@
                                 <button class="btn-icon" onclick="viewHistory(${m.id})" title="History">
                                     <i class="fa-solid fa-clock-rotate-left"></i>
                                 </button>
+                                <form action="/members/delete/${m.id}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this member?');">
+                                    <button type="submit" class="btn-icon" style="color: #ef4444;" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     `;

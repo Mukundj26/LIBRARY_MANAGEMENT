@@ -78,3 +78,36 @@ def edit(id):
     except Exception as e:
         flash(f'Error updating member: {str(e)}')
     return redirect(url_for('members.index'))
+
+@members_bp.route('/members/delete/<int:id>', methods=['POST'])
+@login_required
+def delete(id):
+    try:
+        # Check if member has any unreturned books or active reservations
+        active_issues = query_db("SELECT count(*) as count FROM issues WHERE member_id = ? AND status != 'returned'", [id], one=True)
+        if active_issues and active_issues['count'] > 0:
+            flash("Cannot delete member: They still have unreturned books.")
+            return redirect(url_for('members.index'))
+            
+        active_fines = query_db("SELECT count(*) as count FROM fines WHERE member_id = ? AND paid_status = 'unpaid'", [id], one=True)
+        if active_fines and active_fines['count'] > 0:
+            flash("Cannot delete member: They have unpaid fines.")
+            return redirect(url_for('members.index'))
+
+        member = query_db('SELECT name FROM members WHERE id = ?', [id], one=True)
+        if member:
+            # Delete related records first to prevent foreign key constraint errors
+            execute_db('DELETE FROM fines WHERE member_id = ?', [id])
+            execute_db('DELETE FROM reservations WHERE member_id = ?', [id])
+            execute_db('DELETE FROM issues WHERE member_id = ?', [id])
+            
+            # Now delete the member
+            execute_db('DELETE FROM members WHERE id = ?', [id])
+            log_activity('DELETE', 'members', session.get('username', 'System'), f"Deleted member ID {id}: {member['name']}")
+            flash('Member deleted successfully!')
+        else:
+            flash('Member not found.')
+    except Exception as e:
+        flash(f'Error deleting member: {str(e)}')
+        
+    return redirect(url_for('members.index'))

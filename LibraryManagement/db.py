@@ -49,8 +49,10 @@ def init_db(app):
     if not os.path.exists(db_dir):
         os.makedirs(db_dir)
         
-    with app.app_context():
-        db = get_db()
-        with app.open_resource('database/schema.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
+    # Only initialize if the database file doesn't exist
+    if not os.path.exists(Config.DATABASE_PATH):
+        with app.app_context():
+            db = get_db()
+            with app.open_resource('database/schema.sql', mode='r') as f:
+                db.cursor().executescript(f.read())
+            db.commit()
