@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Books{% endblock %}
+
+{% block content %}
+<div class="page-header-actions">
+    <div class="search-bar">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="bookSearchInput" placeholder="Search title, author or ISBN..." onkeyup="searchBooks()">
+    </div>
+    <button class="btn-primary" onclick="openModal('addBookModal')">
+        <i class="fa-solid fa-plus"></i> Add Book
+    </button>
+</div>
+
+<div class="table-container shadow">
+    <table id="booksTable">
+        <thead>
+            <tr>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Qty</th>
+                <th>Created By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loaded via JS -->
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="addBookModal" class="modal">
+    <div class="modal-header">
+        <h3>Add New Book</h3>
+        <button class="close-btn" onclick="closeModal('addBookModal')">&times;</button>
+    </div>
+    <form action="{{ url_for('books.add') }}" method="POST" class="modal-body p-20">
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" required>
+        </div>
+        <div class="form-group">
+            <label>Author</label>
+            <input type="text" name="author" required>
+        </div>
+        <div class="form-group">
+            <label>ISBN</label>
+            <input type="text" name="isbn" required>
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category_id">
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" name="qty" value="1" min="1" required>
+        </div>
+        <div class="form-group">
+            <label>Notes / Remarks</label>
+            <textarea name="notes" placeholder="Extra information..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-text" onclick="closeModal('addBookModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Save Book</button>
+        </div>
+    </form>
+</div>
+
+<div id="editBookModal" class="modal">
+    <div class="modal-header">
+        <h3>Edit Book</h3>
+        <button class="close-btn" onclick="closeModal('editBookModal')">&times;</button>
+    </div>
+    <form id="editBookForm" method="POST" class="modal-body p-20">
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" id="edit_title" required>
+        </div>
+        <div class="form-group">
+            <label>Author</label>
+            <input type="text" name="author" id="edit_author" required>
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category_id" id="edit_category_id">
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" name="qty" id="edit_qty" min="1" required>
+        </div>
+        <div class="form-group">
+            <label>Notes / Remarks</label>
+            <textarea name="notes" id="edit_notes" placeholder="Extra information..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-text" onclick="closeModal('editBookModal')">Cancel</button>
+            <button type="submit" class="btn-primary">Update Book</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function searchBooks() {
+        const query = document.getElementById('bookSearchInput').value;
+        fetch(`/api/books/search?q=${query}`)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.querySelector('#booksTable tbody');
+                tbody.innerHTML = '';
+                data.forEach(book => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${book.isbn}</td>
+                            <td><strong>${book.title}</strong></td>
+                            <td>${book.author}</td>
+                            <td><span class="badge badge-outline">${book.category_name || 'N/A'}</span></td>
+                            <td>${book.available_qty} / ${book.qty}</td>
+                            <td><small>${book.created_by || 'System'}</small></td>
+                            <td>
+                                <button class="btn-icon" onclick='openEditBook(${JSON.stringify(book)})'>
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    function openEditBook(book) {
+        document.getElementById('edit_title').value = book.title;
+        document.getElementById('edit_author').value = book.author;
+        document.getElementById('edit_category_id').value = book.category_id;
+        document.getElementById('edit_qty').value = book.qty;
+        document.getElementById('edit_notes').value = book.notes || '';
+        document.getElementById('editBookForm').action = `/books/edit/${book.id}`;
+        openModal('editBookModal');
+    }
+
+    window.onload = searchBooks;
+</script>
+{% endblock %}

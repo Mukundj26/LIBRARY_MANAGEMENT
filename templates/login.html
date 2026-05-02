@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Library System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <h1>LibAdmin</h1>
+            <p>Welcome back! Please login to continue.</p>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert error">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <form action="{{ url_for('auth.login') }}" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" name="username" required placeholder="Enter username">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" required placeholder="Enter password">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary full-width">Login</button>
+        </form>
+    </div>
+</body>
+</html>

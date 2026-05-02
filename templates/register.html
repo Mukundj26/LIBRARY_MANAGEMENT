@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Library System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fa-solid fa-user-plus"></i>
+            <h1>Join LibAdmin</h1>
+            <p>Create a member account to borrow books.</p>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert {{ 'success' if 'success' in message|lower else 'error' }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <form action="{{ url_for('auth.register') }}" method="POST" class="login-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="text" id="phone" name="phone" required placeholder="Enter your phone">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Create Password</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" required placeholder="Min 6 characters">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary full-width">Sign Up</button>
+            <div class="form-footer mt-20 text-center">
+                <a href="{{ url_for('auth.login') }}" class="btn-text">Already have an account? Login</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
